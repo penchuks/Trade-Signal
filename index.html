@@ -437,24 +437,34 @@ Respond ONLY with a valid JSON object (no markdown, no extra text):
     }
 
     function generateFallback(coin, timeframe) {
+      const prices = {
+        bitcoin: 77000, ethereum: 2280, solana: 84, xrp: 1.38,
+        bnb: 617, cardano: 0.44, avalanche: 28, dogecoin: 0.18
+      };
+      const key = coin.toLowerCase();
+      const price = prices[key] || 100;
       const signals = ['BUY', 'SELL', 'HOLD'];
       const signal = signals[Math.floor(Math.random() * 3)];
       const confidence = Math.floor(Math.random() * 40) + 45;
+      const entry = (price * 0.98).toFixed(2);
+      const target = (price * 1.08).toFixed(2);
+      const stop = (price * 0.94).toFixed(2);
+      const mood = signal === 'BUY' ? 'bullish' : signal === 'SELL' ? 'bearish' : 'neutral';
       return {
         coin, timeframe, signal, confidence,
-        currentPrice: '$—',
-        entryZone: 'See chart',
-        targetPrice: '—',
-        stopLoss: '—',
+        currentPrice: '$' + price.toLocaleString(),
+        entryZone: '$' + (price * 0.97).toFixed(2) + ' - $' + (price * 0.99).toFixed(2),
+        targetPrice: '$' + target,
+        stopLoss: '$' + stop,
         riskReward: '1:2',
         trend: signal === 'BUY' ? 'BULLISH' : signal === 'SELL' ? 'BEARISH' : 'SIDEWAYS',
         momentum: 'MODERATE',
         volatility: 'MEDIUM',
         riskLevel: 'MEDIUM',
-        reasoning: `${coin} is showing mixed technical signals on the ${timeframe} timeframe. Market conditions suggest caution with current price action near key support/resistance levels. Risk management is essential in the current environment.`,
+        reasoning: `${coin} is showing ${mood} signals on the ${timeframe} timeframe. Key levels are being tested with moderate volume. Risk management is essential in the current environment.`,
         bullishFactors: ['Strong community support', 'Growing developer activity', 'Positive macro environment'],
         bearishFactors: ['Overbought RSI levels', 'Macro uncertainty'],
-        keyLevels: 'Check key support and resistance on your chart before entering.'
+        keyLevels: 'Support at $' + stop + ' · Resistance at $' + target
       };
     }
 
@@ -608,31 +618,4 @@ Respond ONLY with a valid JSON object (no markdown, no extra text):
     });
   </script>
 </body>
-  function generateFallback(coin, timeframe) {
-  const prices = {
-    bitcoin: 77000, ethereum: 2280, solana: 84, xrp: 1.38,
-    bnb: 617, cardano: 0.44, avalanche: 28, dogecoin: 0.18
-  };
-  const key = coin.toLowerCase();
-  const price = prices[key] || 100;
-  const signal = ['BUY','SELL','HOLD'][Math.floor(Math.random()*3)];
-  const confidence = Math.floor(Math.random()*40)+45;
-  const entry = (price * 0.98).toFixed(2);
-  const target = (price * 1.08).toFixed(2);
-  const stop = (price * 0.94).toFixed(2);
-  return {
-    coin, timeframe, signal, confidence,
-    currentPrice: '$' + price.toLocaleString(),
-    entryZone: '$' + (price*0.97).toFixed(2) + ' - $' + (price*0.99).toFixed(2),
-    targetPrice: '$' + target,
-    stopLoss: '$' + stop,
-    riskReward: '1:2',
-    trend: signal==='BUY'?'BULLISH':signal==='SELL'?'BEARISH':'SIDEWAYS',
-    momentum: 'MODERATE', volatility: 'MEDIUM', riskLevel: 'MEDIUM',
-    reasoning: `${coin} is showing ${signal==='BUY'?'bullish':'signal==='SELL'?'bearish':'neutral'} signals on the ${timeframe} timeframe. Key levels are being tested with moderate volume. Risk management is essential.`,
-    bullishFactors: ['Strong community support','Growing adoption','Positive market structure'],
-    bearishFactors: ['Macro uncertainty','Overbought conditions'],
-    keyLevels: `Support at $${stop} · Resistance at $${target}`
-  };
-}
 </html>
