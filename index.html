@@ -428,7 +428,7 @@ Respond ONLY with a valid JSON object (no markdown, no extra text):
         const result = JSON.parse(text);
         renderSignal(result);
       } catch(e) {
-        renderSignal(generateFallback(coin, timeframe));
+        renderSignal(await generateFallback(coin, timeframe));
       }
 
       clearInterval(interval);
@@ -436,23 +436,24 @@ Respond ONLY with a valid JSON object (no markdown, no extra text):
       btn.disabled = false;
     }
 
-    function generateFallback(coin, timeframe) {
-      const prices = {
-        bitcoin: 77000, ethereum: 2280, solana: 84, xrp: 1.38,
-        bnb: 617, cardano: 0.44, avalanche: 28, dogecoin: 0.18
-      };
-      const key = coin.toLowerCase();
-      const price = prices[key] || 100;
+    async function generateFallback(coin, timeframe) {
+      let price = 100;
+      try {
+        const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coin.toLowerCase()}&vs_currencies=usd`);
+        const data = await res.json();
+        const keys = Object.keys(data);
+        if (keys.length > 0) price = data[keys[0]].usd;
+      } catch(e) {}
+
       const signals = ['BUY', 'SELL', 'HOLD'];
       const signal = signals[Math.floor(Math.random() * 3)];
       const confidence = Math.floor(Math.random() * 40) + 45;
-      const entry = (price * 0.98).toFixed(2);
       const target = (price * 1.08).toFixed(2);
       const stop = (price * 0.94).toFixed(2);
       const mood = signal === 'BUY' ? 'bullish' : signal === 'SELL' ? 'bearish' : 'neutral';
       return {
         coin, timeframe, signal, confidence,
-        currentPrice: '$' + price.toLocaleString(),
+        currentPrice: price > 0 ? '$' + price.toLocaleString() : 'N/A',
         entryZone: '$' + (price * 0.97).toFixed(2) + ' - $' + (price * 0.99).toFixed(2),
         targetPrice: '$' + target,
         stopLoss: '$' + stop,
